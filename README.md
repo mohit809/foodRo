@@ -150,6 +150,33 @@ Watch the delivery process from flame to door with an interactive simulation:
 
 ---
 
+## 🗄️ Database Architecture & Credentials
+
+foodRo includes an enterprise-grade database layer supporting both **offline-first local persistence** (IndexedDB + LocalStorage) and **instant remote cloud database connections**:
+
+* **Plug-and-Play Credentials (`src/config/dbConfig.js`)**: Easily paste your Supabase Project URL & Anon Key, Firebase API configuration, or custom PostgreSQL REST endpoint.
+* **Persistent Stores**:
+  * `users`: Verified emails, phone numbers, security PINs, member profiles.
+  * `orders`: Order IDs, item arrays, pricing, verified customer device coordinates, and real-time courier statuses.
+  * `payments`: Transaction IDs, payment methods (UPI/GPay/PayPal), amounts, currencies, and verified status.
+  * `restaurants`: Partner names, contacts, FSSAI/PAN licenses, and bank payout settlement accounts.
+  * `dishes`: Menu catalog, uploaded dish image data, categories, and dietary flags.
+* **In-App Database Manager**: Click the **"Database"** button in the navigation bar to inspect live records, view PostgreSQL schema, or **Export Entire DB as JSON / CSV**.
+
+---
+
+## 💳 Verified QR Payments (UPI, Google Pay & PayPal)
+
+Customers can pay instantly without typing sensitive bank account numbers or linking cards:
+
+* **Dynamic Merchant QR Generator**: Generates high-resolution dynamic QR codes encoded with the exact bill amount, currency, and order reference ID.
+* **Anti-Fraud QR Camera Scanner**: Uses the device camera to scan and decode merchant QR codes.
+  * **Strict Verification**: Only authentic, verified banking handles (`@okaxis`, `@okhdfcbank`, `@paytm`, `@ybl`, `@upi`, etc.) and official PayPal transfer accounts are accepted.
+  * Unverified or spoofed QR codes are automatically blocked with a fraud alert.
+* **Configurable Credentials (`src/config/paymentConfig.js`)**: Insert your own UPI VPA (`yourname@upi`), Google Pay Merchant ID, or PayPal.me username in seconds.
+
+---
+
 ## 🛠️ Tech Stack
 
 * **Core Framework**: [React 19](https://react.dev/) + [Vite 6](https://vitejs.dev/)
@@ -174,22 +201,29 @@ foodRo/
 │   └── manifest.json            # PWA Web App Manifest
 ├── src/
 │   ├── components/
-│   │   ├── AuthModal.jsx        # 2-Step OTP authentication modal
-│   │   ├── CartDrawer.jsx       # Slide-over cart & bill breakdown
-│   │   ├── CategoryFilter.jsx   # Swipeable cuisine filter pills
-│   │   ├── CheckoutModal.jsx    # Delivery address & payment selection
+│   │   ├── AuthModal.jsx        # Verified email registration & 2FA login
+│   │   ├── CartDrawer.jsx       # Slide-over shopping basket & coupons
+│   │   ├── CategoryFilter.jsx   # Horizontal categories list
+│   │   ├── CheckoutModal.jsx    # Anti-fraud phone verification, tips & GPS
 │   │   ├── CustomizeModal.jsx   # Dish portion & add-ons bottom sheet
+│   │   ├── DatabaseManagerModal.jsx # Live DB records inspector & SQL export
 │   │   ├── FavoritesModal.jsx   # Saved favorites wishlist drawer
 │   │   ├── FoodCard.jsx         # Dish card with ratings, price & add CTA
 │   │   ├── MobileBottomNav.jsx  # Native Android bottom navigation bar
 │   │   ├── MobileCartBar.jsx    # Floating sticky mobile cart pill
-│   │   ├── Navbar.jsx           # Responsive header & slide-out drawer
+│   │   ├── Navbar.jsx           # Responsive header, database & drawer
 │   │   ├── OrderHistoryModal.jsx# Past orders list & 1-click reorder
 │   │   ├── OrderTrackingModal.jsx# Live delivery map & driver tracker
+│   │   ├── PaymentQrModal.jsx   # Dynamic QR generator & camera QR scanner
 │   │   ├── PromoCarousel.jsx    # Promo banners with 1-click apply
-│   │   └── RestaurantPortalModal.jsx # Merchant listing & food portal
+│   │   └── RestaurantPortalModal.jsx # Device image upload & partner portal
+│   ├── config/
+│   │   ├── dbConfig.js          # Plug-and-play Supabase/Firebase credentials
+│   │   └── paymentConfig.js     # Verified UPI VPA, GPay & PayPal handles
 │   ├── data/
 │   │   └── mockData.js          # Menu catalog, restaurants & promo codes
+│   ├── services/
+│   │   └── db.js                # IndexedDB & LocalStorage persistent DB engine
 │   ├── utils/
 │   │   └── currency.js          # Multi-currency exchange & detection logic
 │   ├── App.jsx                  # Master application orchestrator & state

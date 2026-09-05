@@ -17,10 +17,15 @@ import {
   Coffee,
   Hotel,
   AlertCircle,
-  Radio
+  Radio,
+  Image as ImageIcon,
+  Landmark,
+  Phone,
+  Mail
 } from 'lucide-react';
 import { CATEGORIES } from '../data/mockData';
 import { formatCurrency } from '../utils/currency';
+import { dbService } from '../services/db';
 
 export default function RestaurantPortalModal({
   isOpen,
@@ -44,9 +49,11 @@ export default function RestaurantPortalModal({
   const [isVeg, setIsVeg] = useState(true);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState(restaurants[0]?.id || 'r-momo');
   const [dishImage, setDishImage] = useState('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80');
+  const [dishUploadedFileName, setDishUploadedFileName] = useState('');
   const [prepTime, setPrepTime] = useState('15-20 mins');
   const [calories, setCalories] = useState('350 kcal');
   const [isBestseller, setIsBestseller] = useState(false);
+  const dishImageFileRef = useRef(null);
 
   // Inline "Type Custom Restaurant" in Add Dish Form
   const [isCustomRestInDish, setIsCustomRestInDish] = useState(false);
@@ -61,6 +68,19 @@ export default function RestaurantPortalModal({
   const [restLocation, setRestLocation] = useState('Downtown High Street, Sector 18');
   const [restDeliveryTime, setRestDeliveryTime] = useState('20-25 min');
   const [restImage, setRestImage] = useState('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&auto=format&fit=crop&q=80');
+
+  // Mandatory Valid Phone & Email for Restaurant
+  const [restPhone, setRestPhone] = useState('+91 98100 23456');
+  const [restEmail, setRestEmail] = useState('manager@grandmomo.com');
+  const [restError, setRestError] = useState('');
+
+  // Bank Account & Payout Details for Restaurant
+  const [payoutAccountHolder, setPayoutAccountHolder] = useState('Royal Momo Gourmet Pvt Ltd');
+  const [payoutBankName, setPayoutBankName] = useState('HDFC Bank');
+  const [payoutAccountNumber, setPayoutAccountNumber] = useState('5010049281726');
+  const [payoutIfsc, setPayoutIfsc] = useState('HDFC0001829');
+  const [payoutUpiId, setPayoutUpiId] = useState('royalkitchen@okhdfcbank');
+  const [payoutSchedule, setPayoutSchedule] = useState('Daily Instant Payout');
 
   // Live GPS & Interactive Map State for Restaurant
   const [restCoords, setRestCoords] = useState({
@@ -102,6 +122,19 @@ export default function RestaurantPortalModal({
     { id: 'cloud_kitchen', label: 'Cloud / Express Kitchen', icon: Sparkles }
   ];
 
+  // Handle Dish Image Upload from Device
+  const handleDishImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setDishImage(event.target.result);
+      setDishUploadedFileName(`${file.name} (${Math.round(file.size / 1024)} KB)`);
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Capture restaurant live GPS
   const handleFetchRestaurantGps = () => {
     setIsDetectingGps(true);
@@ -138,7 +171,6 @@ export default function RestaurantPortalModal({
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
     
-    // Slight delta adjustment from base coords
     const newLat = Number((28.6100 + (1 - y) * 0.01).toFixed(5));
     const newLng = Number((77.2050 + x * 0.01).toFixed(5));
     
@@ -151,7 +183,7 @@ export default function RestaurantPortalModal({
   };
 
   // Submit Add Dish
-  const handleAddDishSubmit = (e) => {
+  const handleAddDishSubmit = async (e) => {
     e.preventDefault();
     if (!dishName.trim()) return;
 
@@ -169,9 +201,12 @@ export default function RestaurantPortalModal({
         deliveryTime: '20-30 min',
         distance: '1.2 km',
         image: dishImage,
-        isGovtVerified: true
+        isGovtVerified: true,
+        phone: '+91 98100 23456',
+        email: 'partner@foodro.com'
       };
       onAddRestaurant(targetRest);
+      await dbService.saveRestaurant(targetRest);
     }
 
     if (!targetRest) {
@@ -223,17 +258,42 @@ export default function RestaurantPortalModal({
     };
 
     onAddFoodItem(newFood);
+    await dbService.saveDish(newFood);
+
     setDishName('');
     setDishDescription('');
     setIsCustomRestInDish(false);
     setInlineCustomRestName('');
+    setDishUploadedFileName('');
     setActiveTab('manage');
   };
 
   // Submit Register Restaurant / Hotel
-  const handleAddRestaurantSubmit = (e) => {
+  const handleAddRestaurantSubmit = async (e) => {
     e.preventDefault();
-    if (!restName.trim()) return;
+    setRestError('');
+
+    if (!restName.trim()) {
+      setRestError('Please enter the hotel or restaurant name.');
+      return;
+    }
+
+    // Validation: Valid Phone & Email strictly required
+    if (!restPhone.trim() || restPhone.trim().length < 8) {
+      setRestError('Valid contact phone number is strictly required to register.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!restEmail.trim() || !emailRegex.test(restEmail.trim())) {
+      setRestError('Valid business email address is strictly required to register.');
+      return;
+    }
+
+    if (!payoutAccountNumber.trim()) {
+      setRestError('Bank payout account number is required for receiving customer payments.');
+      return;
+    }
 
     const newRest = {
       id: 'rest-' + Date.now(),
@@ -241,6 +301,8 @@ export default function RestaurantPortalModal({
       type: restType,
       cuisine: restCuisine.trim(),
       location: restLocation.trim(),
+      phone: restPhone.trim(),
+      email: restEmail.trim(),
       coords: {
         lat: restCoords.latitude,
         lng: restCoords.longitude
@@ -253,6 +315,14 @@ export default function RestaurantPortalModal({
       panNumber: panNumber.trim(),
       govProofNumber: govProofNumber.trim(),
       fssaiNumber: fssaiNumber.trim(),
+      payoutAccount: {
+        accountHolder: payoutAccountHolder.trim(),
+        bankName: payoutBankName.trim(),
+        accountNumber: payoutAccountNumber.trim(),
+        ifsc: payoutIfsc.trim(),
+        upiId: payoutUpiId.trim(),
+        payoutSchedule
+      },
       documents: {
         pan: panUploadedFile,
         govProof: govUploadedFile,
@@ -261,8 +331,11 @@ export default function RestaurantPortalModal({
     };
 
     onAddRestaurant(newRest);
+    await dbService.saveRestaurant(newRest);
+
     setSelectedRestaurantId(newRest.id);
     setRestName('');
+    setRestError('');
     setActiveTab('add_dish');
   };
 
@@ -533,33 +606,90 @@ export default function RestaurantPortalModal({
                 />
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Dish Image (URL or Select Preset)
-                </label>
+              {/* UPLOAD DISH IMAGE (Requested: Upload photo from device) */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[11px] font-bold text-slate-800 uppercase tracking-wide">
+                    Dish Photo (Upload from Device or Select Preset) *
+                  </label>
+                  {dishUploadedFileName && (
+                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      Uploaded
+                    </span>
+                  )}
+                </div>
+
+                {/* Upload Trigger Button & Hidden Input */}
                 <input
-                  type="text"
-                  value={dishImage}
-                  onChange={(e) => setDishImage(e.target.value)}
-                  placeholder="https://..."
-                  className="w-full p-2.5 rounded-xl border border-slate-200 focus:border-orange-500 text-xs text-slate-800 outline-none mb-2"
+                  type="file"
+                  ref={dishImageFileRef}
+                  accept="image/*"
+                  onChange={handleDishImageUpload}
+                  className="hidden"
                 />
-                
-                <div className="flex flex-wrap gap-1.5">
-                  {imagePresets.map(preset => (
+
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                  {/* Image Preview */}
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-orange-300 bg-slate-100 shrink-0 shadow-sm">
+                    <img
+                      src={dishImage}
+                      alt="Dish Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition flex items-center justify-center">
+                      <span className="text-[10px] text-white font-bold">Preview</span>
+                    </div>
+                  </div>
+
+                  <div className="flex-1 w-full space-y-2">
                     <button
-                      key={preset.label}
                       type="button"
-                      onClick={() => setDishImage(preset.url)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition cursor-pointer ${
-                        dishImage === preset.url
-                          ? 'bg-orange-500 border-orange-500 text-white'
-                          : 'border-slate-200 text-slate-700 hover:bg-slate-100'
-                      }`}
+                      onClick={() => dishImageFileRef.current?.click()}
+                      className="w-full py-2.5 px-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-xs active:scale-98"
                     >
-                      {preset.label}
+                      <UploadCloud className="w-4 h-4" />
+                      <span>{dishUploadedFileName ? 'Change Uploaded Photo' : 'Upload Food Photo from Device / Camera'}</span>
                     </button>
-                  ))}
+
+                    {dishUploadedFileName && (
+                      <p className="text-[10px] text-slate-500 font-mono truncate text-center sm:text-left">
+                        {dishUploadedFileName}
+                      </p>
+                    )}
+
+                    <input
+                      type="text"
+                      value={dishImage}
+                      onChange={(e) => setDishImage(e.target.value)}
+                      placeholder="Or paste image URL (https://...)"
+                      className="w-full p-2 rounded-xl border border-slate-200 text-xs text-slate-700 outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Preset Chips */}
+                <div className="pt-1">
+                  <span className="text-[10px] font-bold text-slate-400 block mb-1">Or choose a quick preset:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {imagePresets.map(preset => (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() => {
+                          setDishImage(preset.url);
+                          setDishUploadedFileName('');
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition cursor-pointer ${
+                          dishImage === preset.url
+                            ? 'bg-orange-500 border-orange-500 text-white'
+                            : 'border-slate-200 text-slate-700 hover:bg-slate-100'
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -573,7 +703,7 @@ export default function RestaurantPortalModal({
             </form>
           )}
 
-          {/* TAB 2: REGISTER HOTEL / RESTAURANT / CAFE / FOOD POINT (With Map, Live GPS & Govt Proofs) */}
+          {/* TAB 2: REGISTER HOTEL / RESTAURANT / CAFE / FOOD POINT (With Map, Live GPS & Govt Proofs & Payout Account) */}
           {activeTab === 'add_restaurant' && (
             <form onSubmit={handleAddRestaurantSubmit} className="space-y-4 sm:space-y-5">
               
@@ -581,7 +711,7 @@ export default function RestaurantPortalModal({
                 <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <strong className="block">Official Partner Onboarding (Anti-Fraud Protected):</strong>
-                  Register your Hotel, Restaurant, Cafe or Food Point with exact Live GPS location and government verification proofs (PAN card, authority registration & food license).
+                  Register your Hotel, Restaurant, Cafe or Food Point with verified contact info, Live GPS kitchen location, bank payout details, and regulatory proofs.
                 </div>
               </div>
 
@@ -629,7 +759,46 @@ export default function RestaurantPortalModal({
                 />
               </div>
 
-              {/* 3. CUISINES & DELIVERY TIME */}
+              {/* 3. MANDATORY VALID PHONE & VALID EMAIL ID (Requested) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1 flex items-center justify-between">
+                    <span>Valid Phone Number *</span>
+                    <span className="text-[10px] text-emerald-600 font-bold">OTP Protected</span>
+                  </label>
+                  <div className="relative">
+                    <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      required
+                      value={restPhone}
+                      onChange={(e) => setRestPhone(e.target.value)}
+                      placeholder="+91 98100 23456"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:border-emerald-500 text-xs font-bold text-slate-900 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1 flex items-center justify-between">
+                    <span>Valid Business Email *</span>
+                    <span className="text-[10px] text-emerald-600 font-bold">Order Invoices</span>
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="email"
+                      required
+                      value={restEmail}
+                      onChange={(e) => setRestEmail(e.target.value)}
+                      placeholder="orders@restaurant.com"
+                      className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:border-emerald-500 text-xs font-bold text-slate-900 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. CUISINES & DELIVERY TIME */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1">
@@ -659,7 +828,7 @@ export default function RestaurantPortalModal({
                 </div>
               </div>
 
-              {/* 4. EXACT LOCATION, LIVE GPS & INTERACTIVE MAP */}
+              {/* 5. EXACT LOCATION, LIVE GPS & INTERACTIVE MAP */}
               <div className="p-3.5 sm:p-4 rounded-3xl bg-slate-900 text-white space-y-3 shadow-lg">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -668,9 +837,9 @@ export default function RestaurantPortalModal({
                     </div>
                     <div>
                       <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">
-                        3. Restaurant Exact GPS Location & Live Map *
+                        Exact Restaurant GPS Location & Live Map *
                       </h4>
-                      <span className="text-[10px] text-slate-400">Pinpoints your kitchen for couriers</span>
+                      <span className="text-[10px] text-slate-400">Ensures accurate courier navigation</span>
                     </div>
                   </div>
 
@@ -691,7 +860,6 @@ export default function RestaurantPortalModal({
                   className="relative h-36 sm:h-44 rounded-2xl overflow-hidden bg-slate-800 border border-slate-700 cursor-crosshair group shadow-inner"
                   title="Click anywhere to move and calibrate restaurant location pin"
                 >
-                  {/* Grid Lines */}
                   <div 
                     className="absolute inset-0 opacity-20"
                     style={{
@@ -700,7 +868,6 @@ export default function RestaurantPortalModal({
                     }}
                   />
 
-                  {/* Simulated Map Streets & River */}
                   <svg className="w-full h-full absolute inset-0 opacity-30" viewBox="0 0 600 200">
                     <path d="M 0 50 Q 250 150, 600 80" stroke="#38bdf8" strokeWidth="8" fill="none" />
                     <line x1="120" y1="0" x2="120" y2="200" stroke="#94a3b8" strokeWidth="3" />
@@ -708,7 +875,6 @@ export default function RestaurantPortalModal({
                     <line x1="0" y1="120" x2="600" y2="120" stroke="#94a3b8" strokeWidth="3" />
                   </svg>
 
-                  {/* Movable Pin */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
                     <span className="w-10 h-10 rounded-full bg-emerald-500/30 animate-ping absolute" />
                     <div className="w-9 h-9 rounded-2xl bg-emerald-500 text-white shadow-xl shadow-emerald-500/50 flex items-center justify-center font-bold border-2 border-white relative z-10">
@@ -724,7 +890,6 @@ export default function RestaurantPortalModal({
                   </div>
                 </div>
 
-                {/* GPS Coordinates Tag */}
                 <div className="p-2.5 rounded-xl bg-white/10 border border-white/15 flex items-center justify-between text-xs font-mono">
                   <div className="flex items-center gap-2">
                     <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
@@ -737,7 +902,6 @@ export default function RestaurantPortalModal({
                   </span>
                 </div>
 
-                {/* Exact Street Address */}
                 <div>
                   <label className="block text-[10px] font-bold text-slate-300 uppercase mb-1">
                     Street Address / Sector / Area / Landmark *
@@ -753,17 +917,104 @@ export default function RestaurantPortalModal({
                 </div>
               </div>
 
-              {/* 5. GOVERNMENT AUTHORITY PROOFS & FOOD LICENSES (Anti-Fraud Verification) */}
+              {/* 6. BANK ACCOUNT & PAYOUT SETTLEMENT DETAILS (Requested) */}
+              <div className="p-3.5 sm:p-4 rounded-3xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Landmark className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+                      Merchant Payout & Settlement Account *
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    Daily Settlement
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Revenue from customer orders will be automatically deposited to your registered bank account or UPI handle.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                      Account Holder / Business Legal Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={payoutAccountHolder}
+                      onChange={(e) => setPayoutAccountHolder(e.target.value)}
+                      placeholder="e.g. Royal Momo Gourmet Pvt Ltd"
+                      className="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 outline-none bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                      Bank Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={payoutBankName}
+                      onChange={(e) => setPayoutBankName(e.target.value)}
+                      placeholder="e.g. HDFC Bank, SBI, Chase"
+                      className="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 outline-none bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                      Account Number / IBAN *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={payoutAccountNumber}
+                      onChange={(e) => setPayoutAccountNumber(e.target.value)}
+                      placeholder="Bank Account Number"
+                      className="w-full p-2 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-900 outline-none bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                      IFSC / SWIFT / Routing Code *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={payoutIfsc}
+                      onChange={(e) => setPayoutIfsc(e.target.value.toUpperCase())}
+                      placeholder="e.g. HDFC0001829"
+                      className="w-full p-2 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-900 outline-none bg-white uppercase"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase mb-1">
+                      Merchant UPI ID for Instant Daily Direct Payout *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={payoutUpiId}
+                      onChange={(e) => setPayoutUpiId(e.target.value)}
+                      placeholder="e.g. royalmomo@okhdfcbank"
+                      className="w-full p-2 rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-900 outline-none bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 7. GOVERNMENT AUTHORITY PROOFS & FOOD LICENSES */}
               <div className="p-3.5 sm:p-4 rounded-3xl bg-slate-50 border border-slate-200 space-y-3">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-emerald-600" />
                   <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
-                    4. Government Authority Proofs & Food License *
+                    Government Authority Proofs & Food Safety License *
                   </h4>
                 </div>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  To protect customers and maintain safety standards, provide your business tax ID, municipal trade authority license, and food safety permit.
-                </p>
 
                 {/* PAN Card Proof */}
                 <div className="p-3 rounded-2xl bg-white border border-slate-200 space-y-2">
@@ -889,19 +1140,12 @@ export default function RestaurantPortalModal({
                 </div>
               </div>
 
-              {/* Banner Image */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1">
-                  Storefront Banner Image URL
-                </label>
-                <input
-                  type="text"
-                  value={restImage}
-                  onChange={(e) => setRestImage(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full p-2.5 rounded-xl border border-slate-200 focus:border-emerald-500 text-xs text-slate-800 outline-none"
-                />
-              </div>
+              {restError && (
+                <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{restError}</span>
+                </div>
+              )}
 
               <button
                 type="submit"
@@ -948,6 +1192,10 @@ export default function RestaurantPortalModal({
                       <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
                         <span>FSSAI #{r.fssaiNumber || '10022011000123'}</span>
                         <span className="text-emerald-600 font-bold">GPS Calibrated</span>
+                      </div>
+                      <div className="text-[9px] text-slate-400 flex items-center justify-between">
+                        <span>📞 {r.phone || '+91 98100 23456'}</span>
+                        <span className="truncate max-w-[120px]">✉️ {r.email || 'partner@foodro.com'}</span>
                       </div>
                     </div>
                   ))}

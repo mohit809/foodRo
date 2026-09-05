@@ -11,8 +11,10 @@ import OrderHistoryModal from './components/OrderHistoryModal';
 import FavoritesModal from './components/FavoritesModal';
 import AuthModal from './components/AuthModal';
 import RestaurantPortalModal from './components/RestaurantPortalModal';
+import DatabaseManagerModal from './components/DatabaseManagerModal';
 import MobileBottomNav from './components/MobileBottomNav';
 import MobileCartBar from './components/MobileCartBar';
+import { dbService } from './services/db';
 import { INITIAL_FOOD_ITEMS, INITIAL_RESTAURANTS, VALID_COUPONS } from './data/mockData';
 import { detectUserCurrency, formatCurrency } from './utils/currency';
 import { 
@@ -119,6 +121,7 @@ export default function App() {
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isPartnerPortalOpen, setIsPartnerPortalOpen] = useState(false);
+  const [isDatabaseOpen, setIsDatabaseOpen] = useState(false);
   const [checkoutPricing, setCheckoutPricing] = useState(null);
 
   // Coupon state
@@ -292,6 +295,7 @@ export default function App() {
 
   const handleLoginSuccess = (userProfile) => {
     setUser(userProfile);
+    dbService.saveUser(userProfile);
     showToast(`Welcome back, ${userProfile.name}! 2FA Verified.`);
   };
 
@@ -366,6 +370,7 @@ export default function App() {
         activeOrder={activeOrder}
         onOpenTracking={() => setIsTrackingOpen(true)}
         onOpenPartnerPortal={() => setIsPartnerPortalOpen(true)}
+        onOpenDatabase={() => setIsDatabaseOpen(true)}
         user={user}
         onOpenLogin={() => setIsAuthOpen(true)}
         onLogout={handleLogout}
@@ -688,6 +693,13 @@ export default function App() {
         onAddFoodItem={handleAddFoodItem}
         onDeleteFoodItem={handleDeleteFoodItem}
         foodItems={foodItems}
+        currency={currency}
+      />
+
+      {/* 9. Database & Credentials Manager Modal */}
+      <DatabaseManagerModal
+        isOpen={isDatabaseOpen}
+        onClose={() => setIsDatabaseOpen(false)}
         currency={currency}
       />
 

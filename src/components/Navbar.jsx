@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   Check,
-  Globe
+  Globe,
+  Database
 } from 'lucide-react';
 import { CURRENCIES, formatCurrency } from '../utils/currency';
 
@@ -33,6 +34,7 @@ export default function Navbar({
   activeOrder,
   onOpenTracking,
   onOpenPartnerPortal,
+  onOpenDatabase = null,
   user,
   onOpenLogin,
   onLogout,
@@ -125,6 +127,18 @@ export default function Navbar({
                 <Store className="w-3.5 h-3.5 text-orange-400" />
                 <span>Partner Portal</span>
               </button>
+
+              {/* Desktop Only: Database Manager Button */}
+              {onOpenDatabase && (
+                <button
+                  onClick={onOpenDatabase}
+                  className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer border border-slate-200"
+                  title="Database Records (Users, Orders, Payments, Partners)"
+                >
+                  <Database className="w-3.5 h-3.5 text-orange-500" />
+                  <span>Database</span>
+                </button>
+              )}
 
               {/* Desktop Only: Veg Filter */}
               <button
@@ -494,6 +508,23 @@ export default function Navbar({
                     </div>
                     <span className="text-[10px] bg-orange-100 text-orange-800 font-extrabold px-2 py-0.5 rounded-full">New</span>
                   </button>
+
+                  {/* Database Manager in Drawer */}
+                  {onOpenDatabase && (
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onOpenDatabase();
+                      }}
+                      className="w-full p-3 rounded-2xl text-left text-xs font-bold text-slate-800 hover:bg-slate-100 flex items-center justify-between cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Database className="w-4 h-4 text-orange-500" />
+                        <span>Database Records & API</span>
+                      </div>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full">Live</span>
+                    </button>
+                  )}
 
                   {/* Pure Veg Filter Toggle */}
                   <button
