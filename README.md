@@ -8,6 +8,7 @@
 [![Vite](https://img.shields.io/badge/Vite-6.2.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![CI/CD](https://img.shields.io/badge/GitHub%20Actions-Automated%20Deploy-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/mohit809/foodRo/actions)
+[![License](https://img.shields.io/badge/License-Proprietary%20%26%20Permission%20Required-red?style=for-the-badge&logo=lock&logoColor=white)](LICENSE)
 
 <p align="center">
   <strong>Superfast, chef-crafted gourmet food delivery web application built with React 19, Vite, and Tailwind CSS.</strong><br>
@@ -282,10 +283,14 @@ foodRo includes a pre-configured [`.agents/mcp_config.json`](.agents/mcp_config.
 
 ---
 
-## 📄 License & Author
+## 🔒 License & Copyright
 
-Developed with ❤️ by [**Mohit Kumar**](https://github.com/mohit809).  
-Distributed under the **MIT License**. Feel free to use, modify, and distribute.
+**Copyright © 2026 [Mohit Kumar](https://github.com/mohit809). All Rights Reserved.**
+
+> [!IMPORTANT]
+> **Proprietary & Permission-Required**: No person, organization, or entity is permitted to use, copy, reproduce, modify, sublicense, distribute, or deploy this project or its source code in any form without explicit prior written approval and authorization from the owner (**Mohit Kumar**).
+>
+> For permissions, collaborations, or authorization requests, please contact: [https://github.com/mohit809](https://github.com/mohit809)
 
 <div align="center">
   <sub>Built for foodies worldwide • Powered by foodRo</sub>
