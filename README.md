@@ -83,29 +83,37 @@ The application detects your location/region from your browser timezone/locale a
 
 ---
 
-## 🔐 High-Security 2-Step OTP Verification
+## 🔐 High-Security 2-Step OTP & Anti-Fraud Verification
 
-Modeled after leading fintech and delivery services (Swiggy, Zomato, Uber):
+Designed with bank-grade security and anti-fraud mechanisms to protect both customers and restaurant partners:
 
 ```mermaid
 graph LR
-  A[Step 1: Phone / Name] --> B[Step 2: 6-Digit OTP Verification]
-  B --> C[Step 3: 2-Step PIN Authorization]
-  C --> D[2FA Verified Profile & Checkout Unlocked]
+  A[Verified Email Registration] --> B[Phone OTP Verification at Checkout]
+  B --> C[Real-Time Device GPS Stream to Courier]
+  C --> D[Zero-Fraud Doorstep Delivery]
 ```
 
-1. **Step 1 (Identity)**: Mobile number or email address submission with country code.
-2. **Step 2 (6-Digit OTP)**: Auto-advancing digit inputs with 30s resend timer and a simulated **Security SMS Push Notification** with 1-click auto-fill.
-3. **Step 3 (2-Step PIN)**: 4-digit security PIN confirmation for identity verification.
-4. **Verified Profile**: Grants a **"2-Step Verified User"** badge, automatic address saving, and secure session persistence.
+1. **Strict Email Verification for Registration**: Only users with verified email addresses can register on foodRo. A 6-digit email confirmation code is dispatched to prevent spam, bot registrations, and fake identities.
+2. **Mandatory Phone OTP for Order Placement**: To protect kitchen partners against prank, unreachable, or fake orders, checkout strictly requires phone verification via SMS OTP before any order can be dispatched.
+3. **Real-Time Device GPS Location Sharing**: Customers' verified device coordinates (latitude, longitude, and ±4m accuracy) are securely broadcast to the delivery courier (Marcus Vance) upon dispatch. This eliminates fake address claims and guarantees precise doorstep delivery.
+4. **2-Step Security PIN**: Permanent 4-digit PIN setup safeguards saved addresses and one-click repeat orders.
 
 ---
 
 ## 🏨 Restaurant & Hotel Partner Portal
 
-Own a cloud kitchen, hotel, or restaurant? The built-in **Partner Portal** allows merchants to list and manage their culinary offerings directly:
+Own a hotel, restaurant, cafe, or street food point? The built-in **Partner Portal** allows merchants to list and manage their culinary offerings with full regulatory compliance:
 
-* **Register Hotels / Cloud Kitchens**: Enter restaurant name, cuisines, physical address, delivery speed, and banner image.
+* **Custom Establishment Name**: Type any custom name for your **Hotel, Restaurant, Cafe, Quick Food Point, or Cloud Kitchen** (even if not previously listed in the catalog).
+* **Interactive Map & Live Restaurant GPS**:
+  * 1-click **Capture Live GPS** button pinpoints the exact kitchen coordinates via browser Geolocation.
+  * Interactive visual mini-map allows dragging and calibrating the kitchen location pin.
+* **Government Regulatory & Food Safety Proofs**:
+  * **PAN Card / Tax Authority Proof**: Tax identification number with document attachment.
+  * **Municipal Authority / Trade License Proof**: Official business registration and verification certificate.
+  * **FSSAI / Health Department Food License**: 14-digit food hygiene and safety certification.
+  * Merchants receive a **"Govt. & FSSAI Verified Partner"** badge displayed across their menu.
 * **List New Food Items**:
   * Dish Name & Category (**🥟 Momos**, **🍕 Pizza**, **🍔 Burgers**, **🍛 Biryani**, **🍣 Asian**, **🥗 Healthy**, etc.)
   * Price in active currency with automatic USD base conversion

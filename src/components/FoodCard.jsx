@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Clock, Heart, Plus, Minus, Flame, Sparkles } from 'lucide-react';
+import { Star, Clock, Heart, Plus, Minus, Flame, Sparkles, ShieldCheck } from 'lucide-react';
 import { formatCurrency } from '../utils/currency';
 
 export default function FoodCard({
@@ -90,8 +90,11 @@ export default function FoodCard({
         <div>
           {/* Restaurant & Rating */}
           <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="text-[11px] sm:text-xs font-bold text-orange-600 tracking-wide uppercase truncate">
-              {food.restaurant.name}
+            <span className="text-[11px] sm:text-xs font-bold text-orange-600 tracking-wide uppercase truncate flex items-center gap-1">
+              <span className="truncate">{food.restaurant.name}</span>
+              {food.restaurant.isGovtVerified !== false && (
+                <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" title="Govt & FSSAI Verified Partner" />
+              )}
             </span>
             <div className="flex items-center gap-1 bg-amber-50 text-amber-800 px-1.5 sm:px-2 py-0.5 rounded-lg text-[11px] sm:text-xs font-bold shrink-0">
               <Star className="w-3 h-3 fill-amber-500 text-amber-500" />

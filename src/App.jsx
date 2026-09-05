@@ -631,6 +631,7 @@ export default function App() {
         onOrderPlaced={handleOrderPlaced}
         currency={currency}
         user={user}
+        onUpdateUser={(updated) => setUser(updated)}
         onOpenLogin={() => {
           setIsCheckoutOpen(false);
           setIsAuthOpen(true);
