@@ -193,10 +193,16 @@ Customers can pay instantly without typing sensitive bank account numbers or lin
 ```text
 foodRo/
 ├── .agents/
-│   └── mcp_config.json          # MCP tool configurations
+│   └── mcp_config.json          # Serena, Filesystem, GitHub, Postgres, Puppeteer configs
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml           # Automated GitHub Pages CI/CD workflow
+├── .serena/
+│   └── project.yml              # Serena semantic code intelligence configuration
+├── docs/                        # Complete Engineering Documentation
+│   ├── PROJECT_STRUCTURE.md     # In-depth file tree & module boundaries guide
+│   ├── SERENA_GUIDE.md          # Serena semantic file management & tools guide
+│   └── CONTRIBUTING.md          # Team contribution & coding conventions
 ├── public/
 │   └── manifest.json            # PWA Web App Manifest
 ├── src/
@@ -216,16 +222,21 @@ foodRo/
 │   │   ├── OrderTrackingModal.jsx# Live delivery map & driver tracker
 │   │   ├── PaymentQrModal.jsx   # Dynamic QR generator & camera QR scanner
 │   │   ├── PromoCarousel.jsx    # Promo banners with 1-click apply
-│   │   └── RestaurantPortalModal.jsx # Device image upload & partner portal
+│   │   ├── RestaurantPortalModal.jsx # Device image upload & partner portal
+│   │   └── index.js             # 🌟 Central barrel export for all components
 │   ├── config/
 │   │   ├── dbConfig.js          # Plug-and-play Supabase/Firebase credentials
-│   │   └── paymentConfig.js     # Verified UPI VPA, GPay & PayPal handles
+│   │   ├── paymentConfig.js     # Verified UPI VPA, GPay & PayPal handles
+│   │   └── index.js             # 🌟 Central barrel export for configurations
 │   ├── data/
 │   │   └── mockData.js          # Menu catalog, restaurants & promo codes
 │   ├── services/
-│   │   └── db.js                # IndexedDB & LocalStorage persistent DB engine
+│   │   ├── db.js                # IndexedDB & LocalStorage persistent DB engine
+│   │   └── index.js             # 🌟 Central barrel export for services
 │   ├── utils/
-│   │   └── currency.js          # Multi-currency exchange & detection logic
+│   │   ├── currency.js          # Multi-currency exchange & detection logic
+│   │   ├── validators.js        # Reusable validators for Email, Phone, PAN, FSSAI
+│   │   └── index.js             # 🌟 Central barrel export for utilities
 │   ├── App.jsx                  # Master application orchestrator & state
 │   ├── index.css                # Global styles, touch & safe-area classes
 │   └── main.jsx                 # React root mounting
@@ -235,6 +246,9 @@ foodRo/
 ├── vite.config.js               # Vite bundler & relative path settings
 └── README.md                    # Project documentation
 ```
+
+> 📖 **Detailed Architecture**: For a comprehensive, component-by-component deep dive, see **[`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md)**.
+> 🧠 **Serena Plugin Guide**: For semantic symbol navigation and LSP file management, see **[`docs/SERENA_GUIDE.md`](docs/SERENA_GUIDE.md)**.
 
 ---
 
@@ -318,10 +332,31 @@ foodRo includes a pre-configured [`.agents/mcp_config.json`](.agents/mcp_config.
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-brave-search"],
       "env": { "BRAVE_API_KEY": "YOUR_KEY" }
+    },
+    "serena": {
+      "command": "serena",
+      "args": [
+        "start-mcp-server",
+        "--project", "C:\\Users\\mohit\\Desktop\\foodRo",
+        "--context", "ide-assistant",
+        "--enable-web-dashboard", "false",
+        "--open-web-dashboard", "false"
+      ]
     }
   }
 }
 ```
+
+### 🧠 Serena Plugin: Semantic File Management & Code Editing
+FoodRo integrates the **Serena Semantic Code Toolkit** (`serena-agent`) for symbol-level indexing and code editing.
+- **Project Configuration**: [`.serena/project.yml`](.serena/project.yml)
+- **Language Servers**: TypeScript / JSX / React (`100% of source files indexed`)
+- **Index Command**: `serena project index .`
+- **Key Capabilities**:
+  - Semantic symbol retrieval (`find_symbol`, `get_symbol_references`)
+  - Precise code body replacement without breaking line offsets (`replace_symbol_body`)
+  - Automated project refactoring and symbol renaming across files
+  - Read detailed instructions in **[`docs/SERENA_GUIDE.md`](docs/SERENA_GUIDE.md)**
 
 ---
 

@@ -1,22 +1,24 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import Navbar from './components/Navbar';
-import PromoCarousel from './components/PromoCarousel';
-import CategoryFilter from './components/CategoryFilter';
-import FoodCard from './components/FoodCard';
-import CustomizeModal from './components/CustomizeModal';
-import CartDrawer from './components/CartDrawer';
-import CheckoutModal from './components/CheckoutModal';
-import OrderTrackingModal from './components/OrderTrackingModal';
-import OrderHistoryModal from './components/OrderHistoryModal';
-import FavoritesModal from './components/FavoritesModal';
-import AuthModal from './components/AuthModal';
-import RestaurantPortalModal from './components/RestaurantPortalModal';
-import DatabaseManagerModal from './components/DatabaseManagerModal';
-import MobileBottomNav from './components/MobileBottomNav';
-import MobileCartBar from './components/MobileCartBar';
-import { dbService } from './services/db';
+import {
+  Navbar,
+  PromoCarousel,
+  CategoryFilter,
+  FoodCard,
+  CustomizeModal,
+  CartDrawer,
+  CheckoutModal,
+  OrderTrackingModal,
+  OrderHistoryModal,
+  FavoritesModal,
+  AuthModal,
+  RestaurantPortalModal,
+  DatabaseManagerModal,
+  MobileBottomNav,
+  MobileCartBar
+} from './components';
+import { dbService } from './services';
 import { INITIAL_FOOD_ITEMS, INITIAL_RESTAURANTS, VALID_COUPONS } from './data/mockData';
-import { detectUserCurrency, formatCurrency } from './utils/currency';
+import { detectUserCurrency, formatCurrency } from './utils';
 import { 
   UtensilsCrossed, 
   ArrowUpDown, 
