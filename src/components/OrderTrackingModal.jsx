@@ -9,7 +9,6 @@ import {
   Phone, 
   MessageSquare, 
   Star, 
-  Sparkles,
   RefreshCw,
   Navigation
 } from 'lucide-react';
@@ -26,15 +25,14 @@ export default function OrderTrackingModal({
   if (!isOpen || !order) return null;
 
   const statuses = [
-    { key: 'confirmed', title: 'Order Confirmed', desc: 'Restaurant has accepted your order', icon: CheckCircle2 },
-    { key: 'preparing', title: 'Cooking with Passion', desc: 'Master chefs are preparing your dishes', icon: ChefHat },
-    { key: 'out_for_delivery', title: 'Out for Delivery', desc: 'Courier Marcus is rushing to your door', icon: Bike },
+    { key: 'confirmed', title: 'Order Confirmed', desc: 'Restaurant accepted order', icon: CheckCircle2 },
+    { key: 'preparing', title: 'Cooking with Passion', desc: 'Chefs preparing your food', icon: ChefHat },
+    { key: 'out_for_delivery', title: 'Out for Delivery', desc: 'Courier Marcus is en route', icon: Bike },
     { key: 'delivered', title: 'Delivered Fresh!', desc: 'Enjoy your foodRo meal!', icon: Home }
   ];
 
   const currentStatusIndex = Math.max(0, statuses.findIndex(s => s.key === order.status));
 
-  // Simulated countdown timer in minutes & seconds
   const [timeLeftSec, setTimeLeftSec] = useState(order.etaMinutes * 60);
 
   useEffect(() => {
@@ -57,68 +55,71 @@ export default function OrderTrackingModal({
   const orderCurrency = order.currency || currency;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200">
       <div 
-        className="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200"
+        className="bg-white w-full max-w-2xl rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[94vh] sm:max-h-[92vh] animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-250 pb-safe sm:pb-0"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Drag Handle */}
+        <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto my-2 sm:hidden shrink-0" />
+
         {/* Header */}
-        <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 text-orange-400 flex items-center justify-center">
-              <Navigation className="w-5 h-5 animate-pulse" />
+        <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-900 text-white shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-orange-500/20 border border-orange-500/40 text-orange-400 flex items-center justify-center">
+              <Navigation className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs uppercase font-extrabold tracking-wider text-orange-400">Live Delivery</span>
+                <span className="text-[10px] sm:text-xs uppercase font-extrabold tracking-wider text-orange-400">Live Delivery</span>
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               </div>
-              <h2 className="text-base font-extrabold text-white">
+              <h2 className="text-sm sm:text-base font-extrabold text-white">
                 Order #{order.orderId}
               </h2>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={handleAdvanceStatus}
               title="Fast-forward order simulation"
-              className="text-xs px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold flex items-center gap-1 transition cursor-pointer"
+              className="text-[11px] sm:text-xs px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold flex items-center gap-1 transition cursor-pointer"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Simulate Next Step</span>
+              <RefreshCw className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="hidden sm:inline">Simulate Next</span>
             </button>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-full hover:bg-white/10 text-white/70 hover:text-white flex items-center justify-center transition cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 flex-1">
           
           {/* ETA & Status Banner */}
-          <div className="p-5 rounded-3xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white shadow-lg flex items-center justify-between">
+          <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 text-white shadow-lg flex items-center justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-orange-100 block mb-1">
-                Estimated Delivery Time
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-orange-100 block mb-0.5">
+                Estimated Delivery
               </span>
-              <div className="text-3xl font-extrabold tracking-tight">
+              <div className="text-2xl sm:text-3xl font-extrabold tracking-tight">
                 {order.status === 'delivered' ? (
-                  <span className="text-emerald-100">Arrived at your door!</span>
+                  <span className="text-emerald-100">Arrived! Enjoy!</span>
                 ) : (
                   <span>{minutes} mins {seconds < 10 ? `0${seconds}` : seconds}s</span>
                 )}
               </div>
-              <p className="text-xs text-white/80 mt-1 font-medium">
+              <p className="text-[11px] sm:text-xs text-white/80 mt-1 font-medium">
                 {statuses[currentStatusIndex].desc}
               </p>
             </div>
             
-            <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/20 text-3xl">
+            <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/20 text-2xl sm:text-3xl">
               {order.status === 'confirmed' && '📋'}
               {order.status === 'preparing' && '🍳'}
               {order.status === 'out_for_delivery' && '🛵'}
@@ -127,12 +128,12 @@ export default function OrderTrackingModal({
           </div>
 
           {/* Interactive Simulated Route Map */}
-          <div className="relative h-44 rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-inner flex items-center justify-center">
+          <div className="relative h-36 sm:h-44 rounded-3xl overflow-hidden bg-slate-800 border border-slate-700 shadow-inner flex items-center justify-center">
             <div 
               className="absolute inset-0 opacity-15"
               style={{
                 backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
-                backgroundSize: '24px 24px'
+                backgroundSize: '20px 20px'
               }}
             />
 
@@ -157,11 +158,11 @@ export default function OrderTrackingModal({
             </svg>
 
             {/* Kitchen Pin */}
-            <div className="absolute left-8 top-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div className="w-10 h-10 rounded-2xl bg-slate-900 border-2 border-orange-500 shadow-lg flex items-center justify-center text-lg">
+            <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-slate-900 border-2 border-orange-500 shadow-lg flex items-center justify-center text-sm sm:text-lg">
                 🍳
               </div>
-              <span className="text-[10px] font-bold text-slate-300 mt-1.5 bg-slate-900/80 px-2 py-0.5 rounded">
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-300 mt-1 bg-slate-900/80 px-1.5 py-0.5 rounded">
                 Kitchen
               </span>
             </div>
@@ -169,50 +170,47 @@ export default function OrderTrackingModal({
             {/* Live Moving Scooter */}
             <div 
               className="absolute top-1/2 -translate-y-1/2 transition-all duration-700 ease-out z-10 flex flex-col items-center"
-              style={{ left: `calc(${10 + (progressPercent * 0.75)}%)` }}
+              style={{ left: `calc(${8 + (progressPercent * 0.76)}%)` }}
             >
-              <div className="w-11 h-11 rounded-2xl bg-orange-500 text-white shadow-xl shadow-orange-500/50 flex items-center justify-center border-2 border-white animate-bounce">
-                <Bike className="w-6 h-6" />
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-orange-500 text-white shadow-xl shadow-orange-500/50 flex items-center justify-center border-2 border-white animate-bounce">
+                <Bike className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <span className="text-[10px] font-extrabold text-orange-400 mt-1 bg-black/80 px-2 py-0.5 rounded-full border border-orange-500/30">
-                Marcus (En Route)
+              <span className="text-[9px] sm:text-[10px] font-extrabold text-orange-400 mt-0.5 bg-black/80 px-1.5 py-0.5 rounded-full border border-orange-500/30 whitespace-nowrap">
+                Marcus
               </span>
             </div>
 
             {/* Home Pin */}
-            <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div className="w-10 h-10 rounded-2xl bg-slate-900 border-2 border-emerald-500 shadow-lg flex items-center justify-center text-lg">
+            <div className="absolute right-6 sm:right-8 top-1/2 -translate-y-1/2 flex flex-col items-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-2xl bg-slate-900 border-2 border-emerald-500 shadow-lg flex items-center justify-center text-sm sm:text-lg">
                 🏡
               </div>
-              <span className="text-[10px] font-bold text-slate-300 mt-1.5 bg-slate-900/80 px-2 py-0.5 rounded">
-                Your Address
+              <span className="text-[9px] sm:text-[10px] font-bold text-slate-300 mt-1 bg-slate-900/80 px-1.5 py-0.5 rounded">
+                Home
               </span>
             </div>
           </div>
 
           {/* Stepper Timeline */}
-          <div className="p-5 rounded-3xl bg-slate-50 border border-slate-200/80">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-3.5 sm:p-5 rounded-3xl bg-slate-50 border border-slate-200/80">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
               {statuses.map((step, idx) => {
                 const Icon = step.icon;
                 const isPassed = idx <= currentStatusIndex;
                 const isCurrent = idx === currentStatusIndex;
                 return (
                   <div key={step.key} className="flex flex-col items-center text-center">
-                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center transition-all ${
                       isPassed
                         ? 'bg-orange-500 text-white shadow-md shadow-orange-500/30 scale-105'
                         : 'bg-slate-200 text-slate-400'
                     }`}>
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <span className={`text-xs font-extrabold mt-2 ${
+                    <span className={`text-[11px] sm:text-xs font-extrabold mt-1.5 ${
                       isCurrent ? 'text-orange-600' : isPassed ? 'text-slate-900' : 'text-slate-400'
                     }`}>
                       {step.title}
-                    </span>
-                    <span className="text-[10px] text-slate-500 mt-0.5 hidden sm:block">
-                      {isPassed ? 'Completed' : 'Upcoming'}
                     </span>
                   </div>
                 );
@@ -221,37 +219,36 @@ export default function OrderTrackingModal({
           </div>
 
           {/* Courier Driver Card */}
-          <div className="p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
+          <div className="p-3.5 sm:p-4 rounded-3xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
               <img
                 src={MOCK_DRIVER.avatar}
                 alt={MOCK_DRIVER.name}
-                className="w-13 h-13 rounded-2xl object-cover border-2 border-orange-500/30"
+                className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl object-cover border-2 border-orange-500/30 shrink-0"
               />
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h4 className="text-sm font-extrabold text-slate-900">{MOCK_DRIVER.name}</h4>
-                  <span className="flex items-center gap-0.5 bg-amber-100 text-amber-900 text-[10px] font-bold px-1.5 py-0.5 rounded-md">
-                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                  <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">{MOCK_DRIVER.name}</h4>
+                  <span className="flex items-center gap-0.5 bg-amber-100 text-amber-900 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0">
+                    <Star className="w-2.5 h-2.5 fill-amber-500 text-amber-500" />
                     {MOCK_DRIVER.rating}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500">{MOCK_DRIVER.vehicle}</p>
-                <p className="text-[11px] text-slate-400 font-mono">Plate: {MOCK_DRIVER.plate}</p>
+                <p className="text-[11px] sm:text-xs text-slate-500 truncate">{MOCK_DRIVER.vehicle}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 shrink-0">
               <button 
                 onClick={() => alert(`Calling Marcus at ${MOCK_DRIVER.phone}...`)}
-                className="w-10 h-10 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition active:scale-95 cursor-pointer"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 flex items-center justify-center transition active:scale-95 cursor-pointer"
                 title="Call Driver"
               >
                 <Phone className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => alert(`Opening chat with Marcus...`)}
-                className="w-10 h-10 rounded-2xl bg-orange-50 hover:bg-orange-100 text-orange-600 flex items-center justify-center transition active:scale-95 cursor-pointer"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-orange-50 hover:bg-orange-100 text-orange-600 flex items-center justify-center transition active:scale-95 cursor-pointer"
                 title="Message Driver"
               >
                 <MessageSquare className="w-4 h-4" />
@@ -259,16 +256,16 @@ export default function OrderTrackingModal({
             </div>
           </div>
 
-          {/* Ordered items recap with local currency */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
-            <h4 className="font-extrabold text-slate-900 mb-2 uppercase tracking-wide text-[11px]">
+          {/* Ordered items recap */}
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+            <h4 className="font-extrabold text-slate-900 mb-1.5 uppercase tracking-wide text-[10px] sm:text-[11px]">
               Order Summary ({order.items.length} items)
             </h4>
-            <div className="space-y-1.5 text-slate-600">
+            <div className="space-y-1 text-slate-600">
               {order.items.map((it, i) => (
-                <div key={i} className="flex justify-between items-center">
-                  <span className="font-medium truncate max-w-[280px]">
-                    {it.quantity}x {it.name} {it.selectedSize ? `(${it.selectedSize.name})` : ''}
+                <div key={i} className="flex justify-between items-center text-[11px] sm:text-xs">
+                  <span className="font-medium truncate max-w-[220px] sm:max-w-[280px]">
+                    {it.quantity}x {it.name}
                   </span>
                   <span className="font-bold text-slate-900">
                     {formatCurrency(it.price * it.quantity, orderCurrency)}
@@ -281,13 +278,13 @@ export default function OrderTrackingModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-          <span className="text-xs text-slate-500">
-            Delivering to: <strong className="text-slate-800">{order.address.street}</strong>
+        <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between shrink-0">
+          <span className="text-[11px] sm:text-xs text-slate-500 truncate max-w-[200px] sm:max-w-none">
+            To: <strong className="text-slate-800">{order.address.street}</strong>
           </span>
           <button
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
           >
             Done
           </button>

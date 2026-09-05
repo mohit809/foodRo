@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Navbar from './components/Navbar';
 import PromoCarousel from './components/PromoCarousel';
 import CategoryFilter from './components/CategoryFilter';
@@ -11,6 +11,8 @@ import OrderHistoryModal from './components/OrderHistoryModal';
 import FavoritesModal from './components/FavoritesModal';
 import AuthModal from './components/AuthModal';
 import RestaurantPortalModal from './components/RestaurantPortalModal';
+import MobileBottomNav from './components/MobileBottomNav';
+import MobileCartBar from './components/MobileCartBar';
 import { INITIAL_FOOD_ITEMS, INITIAL_RESTAURANTS, VALID_COUPONS } from './data/mockData';
 import { detectUserCurrency, formatCurrency } from './utils/currency';
 import { 
@@ -18,14 +20,15 @@ import {
   ArrowUpDown, 
   Sparkles, 
   ShieldCheck, 
-  Truck,
-  RotateCcw,
-  Store,
-  CheckCircle2
+  Truck, 
+  RotateCcw, 
+  Store 
 } from 'lucide-react';
 
 export default function App() {
-  // Currency & Region State (Defaults to auto-detected local currency, e.g. INR / USD / JPY)
+  const searchInputRef = useRef(null);
+
+  // Currency & Region State
   const [currency, setCurrency] = useState(() => {
     try {
       return localStorage.getItem('foodro_currency') || detectUserCurrency();
@@ -44,7 +47,7 @@ export default function App() {
     }
   });
 
-  // Food items catalog (Initial + user/restaurant added dishes)
+  // Food items catalog
   const [foodItems, setFoodItems] = useState(() => {
     try {
       const saved = localStorage.getItem('foodro_food_items');
@@ -118,7 +121,7 @@ export default function App() {
   const [isPartnerPortalOpen, setIsPartnerPortalOpen] = useState(false);
   const [checkoutPricing, setCheckoutPricing] = useState(null);
 
-  // Coupon state (Defaults to FOODRO50 for 50% discount)
+  // Coupon state
   const [appliedCoupon, setAppliedCoupon] = useState(VALID_COUPONS.FOODRO50);
 
   // Toast notification
@@ -219,7 +222,6 @@ export default function App() {
     });
   };
 
-  // Update quantity in cart drawer
   const handleUpdateCartQuantity = (cartItem, newQuantity) => {
     if (newQuantity <= 0) {
       handleRemoveCartItem(cartItem);
@@ -243,7 +245,6 @@ export default function App() {
     showToast('Cart cleared');
   };
 
-  // Wishlist toggle
   const handleToggleFavorite = (food) => {
     const exists = favorites.some(f => f.id === food.id);
     if (exists) {
@@ -255,7 +256,6 @@ export default function App() {
     }
   };
 
-  // Order placement handler
   const handleOrderPlaced = (newOrder) => {
     setOrders([newOrder, ...orders]);
     setActiveOrderId(newOrder.orderId);
@@ -264,20 +264,17 @@ export default function App() {
     showToast(`Order #${newOrder.orderId} placed successfully! 🚀`);
   };
 
-  // Order status update
   const handleUpdateOrderStatus = (orderId, newStatus) => {
     setOrders(prev => prev.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o));
     showToast(`Order #${orderId} status: ${newStatus.replace('_', ' ').toUpperCase()}`);
   };
 
-  // Reorder from history
   const handleReorder = (items) => {
     setCart(items);
     setIsCartOpen(true);
     showToast('Items added to cart from past order!');
   };
 
-  // Restaurant Portal Actions
   const handleAddFoodItem = (newFood) => {
     setFoodItems([newFood, ...foodItems]);
     showToast(`"${newFood.name}" listed in the foodRo catalog!`);
@@ -293,7 +290,6 @@ export default function App() {
     showToast(`"${newRest.name}" registered successfully!`);
   };
 
-  // User Auth Actions
   const handleLoginSuccess = (userProfile) => {
     setUser(userProfile);
     showToast(`Welcome back, ${userProfile.name}! 2FA Verified.`);
@@ -302,6 +298,14 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     showToast('Logged out securely.');
+  };
+
+  const handleFocusSearch = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => {
+      const el = document.querySelector('input[type="text"]');
+      if (el) el.focus();
+    }, 200);
   };
 
   // Filtered & Sorted Food Items
@@ -340,13 +344,13 @@ export default function App() {
       
       {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-60 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200">
-          <Sparkles className="w-4 h-4 text-orange-400" />
-          <span className="text-xs font-bold">{toastMessage}</span>
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-60 bg-slate-900/95 backdrop-blur-md text-white px-4 sm:px-5 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-2.5 sm:gap-3 animate-in fade-in slide-in-from-bottom-4 duration-200 max-w-[90vw] sm:max-w-md">
+          <Sparkles className="w-4 h-4 text-orange-400 shrink-0" />
+          <span className="text-xs font-bold truncate">{toastMessage}</span>
         </div>
       )}
 
-      {/* Main Navbar */}
+      {/* Main Top Navbar */}
       <Navbar
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -372,8 +376,8 @@ export default function App() {
         }}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-16">
+      {/* Main Container - with extra bottom padding on mobile for floating bar + bottom nav */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-3.5 sm:px-6 lg:px-8 pb-32 md:pb-16">
         
         {/* Promotional Banner Carousel */}
         <PromoCarousel onApplyPromo={(code) => {
@@ -384,24 +388,24 @@ export default function App() {
           }
         }} />
 
-        {/* Cuisine & Category Filter (Includes Momos, Pizza, Burger, etc.) */}
+        {/* Cuisine & Category Filter */}
         <CategoryFilter
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
         />
 
         {/* Filter and Sorting Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 my-2 border-y border-slate-200/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 py-3 sm:py-4 my-2 border-y border-slate-200/80">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
               {selectedCategory === 'all' 
                 ? 'Featured Dishes & Menus' 
                 : selectedCategory === 'momos'
                 ? '🥟 Himalayan Momos & Dimsums'
                 : selectedCategory === 'pizza'
-                ? '🍕 Artisan Woodfired Pizza'
+                ? '🍕 Artisan Pizza'
                 : selectedCategory === 'burger'
-                ? '🍔 Gourmet Burgers & Sliders'
+                ? '🍔 Gourmet Burgers'
                 : `${selectedCategory.toUpperCase()} Selection`}
             </h2>
             <span className="text-xs font-bold text-slate-400 bg-slate-200/70 px-2 py-0.5 rounded-full">
@@ -410,30 +414,27 @@ export default function App() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* Quick Partner Portal listing shortcut */}
             <button
               onClick={() => setIsPartnerPortalOpen(true)}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 transition cursor-pointer flex items-center gap-1"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold bg-orange-50 hover:bg-orange-100 text-orange-700 border border-orange-200 transition cursor-pointer flex items-center gap-1"
             >
               <Store className="w-3.5 h-3.5 text-orange-600" />
-              <span>+ List Food / Hotel</span>
+              <span>+ List Food</span>
             </button>
 
-            {/* Quick Bestseller toggle */}
             <button
               onClick={() => setFilterBestsellerOnly(!filterBestsellerOnly)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-bold border transition cursor-pointer ${
                 filterBestsellerOnly
                   ? 'bg-orange-500 border-orange-500 text-white shadow-xs'
                   : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
               }`}
             >
-              ★ Bestsellers Only
+              ★ Bestsellers
             </button>
 
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 shadow-xs">
-              <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center gap-1.5 bg-white border border-slate-200 px-2.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-700 shadow-xs">
+              <ArrowUpDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400" />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -448,9 +449,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* Food Items Grid with localized currency */}
+        {/* Food Items Grid - 1 col on small phones, 2 col on tablet, 3 on desktop, 4 on wide */}
         {filteredFoods.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pt-2">
             {filteredFoods.map((food) => {
               const inCartItem = cart.find(i => i.id === food.id);
               const inCartQty = inCartItem ? inCartItem.quantity : 0;
@@ -472,10 +473,10 @@ export default function App() {
             })}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-3xl border border-slate-200/80 p-8 my-6">
-            <div className="text-5xl mb-3">🔍</div>
-            <h3 className="text-lg font-bold text-slate-900 mb-1">No dishes match your filters</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto mb-5">
+          <div className="text-center py-12 sm:py-16 bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 my-4">
+            <div className="text-4xl sm:text-5xl mb-3">🔍</div>
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">No dishes match your filters</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
               Try adjusting your search query, switching category, or toggling off the Veg-only filter.
             </p>
             <button
@@ -485,17 +486,38 @@ export default function App() {
                 setIsVegOnly(false);
                 setFilterBestsellerOnly(false);
               }}
-              className="px-5 py-2.5 rounded-2xl bg-orange-500 text-white font-bold text-xs shadow-md hover:bg-orange-600 transition cursor-pointer"
+              className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-2xl bg-orange-500 text-white font-bold text-xs shadow-md hover:bg-orange-600 transition cursor-pointer"
             >
-              Reset All Filters
+              Reset Filters
             </button>
           </div>
         )}
 
       </main>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white mt-auto border-t border-slate-800">
+      {/* Mobile Floating Sticky Cart Bar */}
+      <MobileCartBar
+        cart={cart}
+        cartCount={cartCount}
+        cartTotal={cartTotal}
+        currency={currency}
+        onOpenCart={() => setIsCartOpen(true)}
+      />
+
+      {/* Mobile Native App Bottom Navigation Bar */}
+      <MobileBottomNav
+        ordersCount={orders.length}
+        activeOrder={activeOrder}
+        favoritesCount={favorites.length}
+        user={user}
+        onOpenLogin={() => (user ? setIsOrdersOpen(true) : setIsAuthOpen(true))}
+        onOpenOrders={() => setIsOrdersOpen(true)}
+        onOpenFavorites={() => setIsFavoritesOpen(true)}
+        onFocusSearch={handleFocusSearch}
+      />
+
+      {/* Desktop / Global Footer */}
+      <footer className="bg-slate-900 text-white mt-auto border-t border-slate-800 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">

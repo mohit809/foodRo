@@ -33,7 +33,7 @@ export default function CartDrawer({
   // Subtotal calculation in USD base
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  // Delivery fee (free above ~$20 USD or with FREEDEL coupon)
+  // Delivery fee
   let deliveryFee = subtotal > 20 ? 0 : 2.50;
   let discount = 0;
 
@@ -83,18 +83,18 @@ export default function CartDrawer({
         className="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+      <div className="fixed inset-y-0 right-0 max-w-full flex w-full sm:w-auto sm:pl-10">
+        <div className="w-full sm:w-screen sm:max-w-md bg-white shadow-2xl flex flex-col h-full pb-safe sm:pb-0">
           
           {/* Cart Header */}
-          <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+          <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/70 shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
-                <ShoppingBag className="w-5 h-5" />
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">Your Basket</h2>
-                <p className="text-xs text-slate-500 font-medium">
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900">Your Basket</h2>
+                <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
                   {cart.length} {cart.length === 1 ? 'item' : 'items'}
                 </p>
               </div>
@@ -113,25 +113,25 @@ export default function CartDrawer({
                 onClick={onClose}
                 className="w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-600 transition cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
 
           {/* Cart Items List */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
             {cart.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-8">
-                <div className="w-20 h-20 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center mb-4 text-3xl">
+              <div className="h-full flex flex-col items-center justify-center text-center p-6">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center mb-3 text-3xl">
                   🥟
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Your cart is empty</h3>
-                <p className="text-xs text-slate-500 max-w-xs mb-6">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">Your cart is empty</h3>
+                <p className="text-xs text-slate-500 max-w-xs mb-5">
                   Explore steaming momos, artisan pizza, burgers, bowls and more to start your feast.
                 </p>
                 <button
                   onClick={onClose}
-                  className="px-6 py-2.5 rounded-2xl bg-orange-500 text-white font-bold text-xs shadow-lg shadow-orange-500/30 hover:bg-orange-600 transition cursor-pointer"
+                  className="px-5 py-2.5 rounded-2xl bg-orange-500 text-white font-bold text-xs shadow-lg shadow-orange-500/30 hover:bg-orange-600 transition cursor-pointer"
                 >
                   Browse Menu
                 </button>
@@ -140,18 +140,18 @@ export default function CartDrawer({
               cart.map((item) => (
                 <div 
                   key={item.cartItemId || item.id}
-                  className="p-3.5 rounded-2xl border border-slate-200/90 bg-white hover:border-slate-300 transition flex gap-3.5"
+                  className="p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 bg-white hover:border-slate-300 transition flex gap-3"
                 >
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-18 h-18 rounded-xl object-cover shrink-0"
+                    className="w-16 h-16 sm:w-18 sm:h-18 rounded-xl object-cover shrink-0"
                   />
 
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
                       <div className="flex items-start justify-between gap-1">
-                        <h4 className="text-sm font-bold text-slate-900 truncate">
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                           {item.name}
                         </h4>
                         <button
@@ -164,9 +164,9 @@ export default function CartDrawer({
                       </div>
 
                       {/* Customization details */}
-                      <div className="text-[11px] text-slate-500 mt-0.5 space-y-0.5">
+                      <div className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 space-y-0.5">
                         {item.selectedSize && item.selectedSize.name !== 'Regular' && (
-                          <span className="block text-slate-600 font-semibold">
+                          <span className="block text-slate-600 font-semibold truncate">
                             Size: {item.selectedSize.name}
                           </span>
                         )}
@@ -184,12 +184,12 @@ export default function CartDrawer({
                     </div>
 
                     <div className="flex items-center justify-between mt-2 pt-1 border-t border-slate-100">
-                      <span className="text-sm font-extrabold text-slate-900">
+                      <span className="text-xs sm:text-sm font-extrabold text-slate-900">
                         {formatCurrency(item.price * item.quantity, currency)}
                       </span>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-2 py-0.5">
+                      <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-100 rounded-xl px-2 py-0.5">
                         <button
                           onClick={() => onUpdateQuantity(item, item.quantity - 1)}
                           className="w-5 h-5 rounded hover:bg-slate-200 flex items-center justify-center text-slate-700 transition cursor-pointer"
@@ -214,8 +214,8 @@ export default function CartDrawer({
 
             {/* Coupons Section */}
             {cart.length > 0 && (
-              <div className="pt-2">
-                <div className="p-4 rounded-2xl bg-orange-50/60 border border-orange-200/80 space-y-3">
+              <div className="pt-1">
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-orange-50/60 border border-orange-200/80 space-y-2.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-orange-950">
                     <Tag className="w-3.5 h-3.5 text-orange-600" />
                     <span>Apply Promo Code</span>
@@ -224,12 +224,12 @@ export default function CartDrawer({
                   {appliedCoupon ? (
                     <div className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-emerald-300 text-xs">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-emerald-600" />
+                        <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
                         <div>
                           <span className="font-extrabold text-emerald-800">
                             {appliedCoupon.code}
                           </span>
-                          <p className="text-[11px] text-emerald-600">
+                          <p className="text-[10px] sm:text-[11px] text-emerald-600">
                             {appliedCoupon.description}
                           </p>
                         </div>
@@ -247,12 +247,12 @@ export default function CartDrawer({
                         type="text"
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                        placeholder="e.g. MOMOLOV, FOODRO50"
+                        placeholder="e.g. FOODRO50, MOMOLOV"
                         className="flex-1 px-3 py-2 rounded-xl bg-white border border-orange-200 text-xs font-mono font-bold uppercase outline-none focus:border-orange-500"
                       />
                       <button
                         onClick={() => handleApplyInput()}
-                        className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
+                        className="px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-xs transition cursor-pointer"
                       >
                         Apply
                       </button>
@@ -260,14 +260,14 @@ export default function CartDrawer({
                   )}
 
                   {couponError && (
-                    <p className="text-[11px] font-semibold text-rose-600">
+                    <p className="text-[10px] sm:text-[11px] font-semibold text-rose-600">
                       {couponError}
                     </p>
                   )}
 
                   {/* Quick coupon suggestions */}
                   {!appliedCoupon && (
-                    <div className="flex flex-wrap gap-1.5 pt-1">
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
                       {Object.values(VALID_COUPONS).map(c => (
                         <button
                           key={c.code}
@@ -286,8 +286,8 @@ export default function CartDrawer({
 
           {/* Cart Footer / Bill Summary */}
           {cart.length > 0 && (
-            <div className="p-5 bg-slate-50 border-t border-slate-200 space-y-3">
-              <div className="space-y-1.5 text-xs text-slate-600">
+            <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 space-y-2.5 shrink-0">
+              <div className="space-y-1 text-xs text-slate-600">
                 <div className="flex justify-between">
                   <span>Items Subtotal</span>
                   <span className="font-semibold text-slate-800">{formatCurrency(subtotal, currency)}</span>
@@ -304,7 +304,7 @@ export default function CartDrawer({
                 </div>
 
                 <div className="flex justify-between">
-                  <span>Taxes & Restaurant Charges</span>
+                  <span>Taxes & Charges</span>
                   <span className="font-semibold text-slate-800">{formatCurrency(taxes, currency)}</span>
                 </div>
 
@@ -320,9 +320,9 @@ export default function CartDrawer({
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-slate-200 flex justify-between items-baseline text-slate-900 font-extrabold text-base">
+                <div className="pt-1.5 border-t border-slate-200 flex justify-between items-baseline text-slate-900 font-extrabold text-sm sm:text-base">
                   <span>To Pay</span>
-                  <span className="text-xl text-orange-600">{formatCurrency(grandTotal, currency)}</span>
+                  <span className="text-lg sm:text-xl text-orange-600">{formatCurrency(grandTotal, currency)}</span>
                 </div>
               </div>
 
@@ -337,7 +337,7 @@ export default function CartDrawer({
                     grandTotal
                   });
                 }}
-                className="w-full py-3.5 px-6 rounded-2xl bg-orange-500 hover:bg-orange-600 active:scale-98 text-white font-extrabold text-sm shadow-xl shadow-orange-500/30 flex items-center justify-between transition cursor-pointer"
+                className="w-full py-3.5 px-5 rounded-2xl bg-orange-500 hover:bg-orange-600 active:scale-98 text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-orange-500/30 flex items-center justify-between transition cursor-pointer"
               >
                 <span>Proceed to Checkout</span>
                 <span className="flex items-center gap-1">
